@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model FeedSource {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  url         String    @db.VarChar(500)
+  category    String    @db.VarChar(50)   // politics, finance, tech...
+  language    String    @default("vi") @db.VarChar(5)
+  tier        Int       @default(2)        // 1=wire, 2=major, 3=specialty
+  isActive    Boolean   @default(true)
+  lastFetched DateTime?
+  errorCount  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  articles    Article[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model Article {
+  id           Int       @id @default(autoincrement())
+  title        String    @db.VarChar(500)
+  description  String?   @db.Text
+  link         String    @db.VarChar(1000)
+  pubDate      DateTime
+  source       String    @db.VarChar(100)
+  category     String?   @db.VarChar(50)
+  imageUrl     String?   @db.VarChar(1000)
+  // AI fields
+  aiCategory   String?   @db.VarChar(50)
+  aiSeverity   String?   @db.VarChar(20)   // critical, high, medium, low, info
+  aiSentiment  Float?                       // -1 to 1
+  province     String?   @db.VarChar(50)   // Tỉnh/thành liên quan
+  // Relations
+  feedSourceId Int
+  feedSource   FeedSource @relation(fields: [feedSourceId], references: [id])
+  createdAt    DateTime  @default(now())
+
+  @@unique([link])
+  @@index([pubDate])
+  @@index([source])
+  @@index([aiCategory])
+  @@index([province])
+}
+
+model AISummary {
+  id         Int      @id @default(autoincrement())
+  type       String   @db.VarChar(50)    // daily_brief, category_summary
+  content    String   @db.LongText
+  provider   String   @db.VarChar(20)    // groq, ollama
+  model      String   @db.VarChar(50)
+  promptHash String   @db.VarChar(64)
+  language   String   @default("vi") @db.VarChar(5)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@unique([promptHash])
+  @@index([type, expiresAt])
+}
+
+model TrendingKeyword {
+  id          Int      @id @default(autoincrement())
+  keyword     String   @db.VarChar(100)
+  count       Int
+  sourceCount Int                        // Unique source count
+  spike       Float                      // Spike multiplier vs baseline
+  summary     String?  @db.Text          // AI-generated context
+  detectedAt  DateTime @default(now())
+
+  @@index([detectedAt])
+  @@index([spike])
+}
+
+model UserSetting {
+  id        Int      @id @default(autoincrement())
+  key       String   @db.VarChar(100)
+  value     String   @db.LongText       // JSON
+  sessionId String   @db.VarChar(64)    // Anonymous session
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, sessionId])
+}
