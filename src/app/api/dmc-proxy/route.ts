@@ -42,6 +42,7 @@ export async function GET(request: Request) {
         const hideHeaderCss = `
           <style>
             header, .header, #header { display: none !important; width: 0 !important; height: 0 !important; overflow: hidden !important; }
+            footer, .footer, #footer, .modal-footer { display: none !important; width: 0 !important; height: 0 !important; overflow: hidden !important; border:none !important; }
             .form-search-top { display: none !important; }
             /* Căn lại vị trí của nội dung dưới header nếu bị đẩy */
             body.format-top { padding-top: 0 !important; }

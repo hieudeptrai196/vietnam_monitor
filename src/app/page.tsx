@@ -89,7 +89,7 @@ export default function Home() {
           )}
 
           {/* Map View Toggle Button */}
-          <div className="absolute top-4 right-4 z-20 flex bg-background/90 backdrop-blur-md border border-border/50 rounded-lg shadow-sm p-1 gap-1">
+          <div className="absolute top-4 left-4 z-20 flex bg-background/90 backdrop-blur-md border border-border/50 rounded-lg shadow-sm p-1 gap-1">
             <button
               onClick={() => setActiveMapView('default')}
               title="Bản đồ Tổng hợp"
