@@ -72,18 +72,26 @@ export default function Home() {
         {/* Cột phải: Map */}
         <div className="flex-1 relative bg-muted/30 flex flex-col">
           {showMapGuide && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-background/90 backdrop-blur-md border border-border/50 text-foreground px-4 py-2 rounded-full shadow-lg flex items-center gap-3 text-sm animate-in slide-in-from-top-4 fade-in duration-300">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary shrink-0">
-                <Info size={14} />
-              </span>
-              <p>Nhấp vào tỉnh/thành trên Bản đồ Tổng hợp để xem tin tức khu vực đó ở cột trái. Cuộn chuột để phóng to/thu nhỏ.</p>
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 w-[90%] max-w-[380px] bg-background/95 backdrop-blur-md border border-border/50 text-foreground px-4 py-3 rounded-xl shadow-xl flex flex-col items-center text-center animate-in slide-in-from-top-4 fade-in duration-300">
               <button 
                 onClick={() => setShowMapGuide(false)}
-                className="p-1 hover:bg-muted rounded-full transition-colors opacity-70 hover:opacity-100 shrink-0"
+                className="absolute top-2 right-2 p-1 text-muted-foreground hover:bg-muted hover:text-foreground rounded-full transition-colors"
                 aria-label="Đóng hướng dẫn"
               >
                 <X size={16} />
               </button>
+              
+              <div className="flex items-center gap-1.5 mb-1.5 text-primary font-medium text-sm">
+                <Info size={16} />
+                <span>Hướng dẫn tương tác Bản đồ</span>
+              </div>
+              
+              <p className="text-[13px] text-foreground/80 leading-relaxed">
+                Nhấp vào một tỉnh/thành bất kỳ để lọc và theo dõi <br/> tin tức chi tiết tại <strong>Sidebar</strong>.
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                (Cuộn chuột trên máy tính hoặc vuốt chụm để thu phóng)
+              </p>
             </div>
           )}
 
