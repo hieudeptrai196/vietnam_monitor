@@ -48,18 +48,20 @@ export async function POST(req: Request) {
 
     const systemPrompt = `
 Chỉ thị tuyệt đối (HARD INSTRUCTIONS):
-Bạn là "Trợ lý Phân tích Chiến sự Trung Đông", một AI chuyên biệt CHỈ ĐƯỢC PHÉP trả lời các câu hỏi liên quan đến tình hình xung đột, quân sự, địa chính trị tại Trung Đông / Vùng Vịnh VÀ sự can dự của các cường quốc quốc tế (như Mỹ, phương Tây, Nga, v.v.) vào điểm nóng này.
+Bạn là "Trợ lý Phân tích Chiến sự Trung Đông". Bạn CHỈ ĐƯỢC PHÉP trả lời các câu hỏi liên quan đến tình hình xung đột, quân sự, địa chính trị tại Trung Đông và sự can dự của quốc tế.
 
-Hôm nay là: Ngày ${new Date().toLocaleDateString('vi-VN')} năm 2026. Bất kỳ sự kiện hoặc tra cứu nào đều lấy mốc này làm tâm. TUYỆT ĐỐI KHÔNG sử dụng mốc thời gian năm 2021.
+Hôm nay là: Ngày ${new Date().toLocaleDateString('vi-VN')} năm 2026. Bất kỳ sự kiện nào đều lấy mốc này làm thời điểm hiện tại.
 
-DỮ LIỆU TIN TỨC HIỆN TẠI (Tình hình mới nhất):
+DỮ LIỆU TIN TỨC HIỆN TẠI TRÊN MÀN HÌNH CỦA NGƯỜI DÙNG:
 ${eventText}
-TÓM TẮT: ${currentSummary || 'Chưa có thông tin'}
+TÓM TẮT DỮ LIỆU: ${currentSummary || 'Chưa có thông tin'}
 
-QUY TẮC PHẨM CHẤT:
-1. NẾU người dùng hỏi về BẤT CỨ chủ đề nào NGOÀI LỀ (Ví dụ: code, thời tiết, giải trí, lịch sử Việt Nam, các sự kiện KHÔNG liên đới Trung Đông), BẠN PHẢI TỪ CHỐI TRẢ LỜI ngay lập tức một cách lịch sự nhưng kiên quyết.
-2. NẾU CẦN THÊM THÔNG TIN (Ví dụ người dùng hỏi về một sự kiện, nhân vật, lịch sử không có trong BẢN TIN HIỆN TẠI, hoặc hỏi về thông tin mới nhất trên mạng), HÃY CHỦ ĐỘNG GỌI CÔNG CỤ \`search_news\` ĐỂ TRA CỨU. TUYỆT ĐỐI KHÔNG được tự ý "chém gió" hay bịa đặt dựa trên trí nhớ cũ của bạn.
-3. TRẢ LỜI trực tiếp, ngắn gọn (4-6 câu), phong cách báo chí khách quan.
+QUY TẮC TRẢ LỜI:
+1. TỪ CHỐI NGOÀI LỀ: Nếu người dùng hỏi các chủ đề KHÔNG liên quan đến Trung Đông (code, thời tiết, giải trí, VN...), từ chối lịch sự.
+2. TRA CỨU MẠNG: NẾU người dùng hỏi một thông tin MÀ TRONG DỮ LIỆU TIN TỨC BÊN TRÊN KHÔNG CÓ (hoặc hỏi về kiến thức, lịch sử, nhân vật, sự kiện cũ), bạn TUYỆT ĐỐI KHÔNG được tự "chém gió". Thay vào đó, bạn PHẢI trả về chính xác chuỗi sau và không trả lời thêm bất cứ chữ nào khác:
+[SEARCH_REQUIRED] <Từ khóa tìm kiếm ngắn gọn trên Google News>
+Ví dụ: [SEARCH_REQUIRED] Lịch sử Israel Gaza
+3. NẾU TRONG DỮ LIỆU ĐÃ CÓ ĐỦ: Trả lời trực tiếp, ngắn gọn (4-6 câu), văn phong báo chí khách quan.
 `.trim();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,87 +73,50 @@ QUY TẮC PHẨM CHẤT:
       }))
     ];
 
-    const tools = [
-      {
-        type: "function",
-        function: {
-          name: "search_news",
-          description: "Dùng để tra cứu tin tức mới nhất từ Google News hoặc các bối cảnh lịch sử, địa chính trị liên quan đến Trung Đông khi người dùng hỏi.",
-          parameters: {
-            type: "object",
-            properties: {
-              query: {
-                type: "string",
-                description: "Từ khóa tìm kiếm ngắn gọn trên Google News (Ví dụ: 'Tình hình Israel Hamas mới nhất', 'Tổng thống Mỹ hiện tại là ai', 'Lịch sử xung đột Iran Israel')"
-              }
-            },
-            required: ["query"]
-          }
-        }
-      }
-    ];
+    let reply = "";
 
-    let chatCompletion;
     try {
-      chatCompletion = await groq.chat.completions.create({
+      const chatCompletion = await groq.chat.completions.create({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         messages: apiMessages as any,
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama-3.1-8b-instant', // Model nhanh để phán đoán
         temperature: 0.1,
         max_tokens: 500,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tools: tools as any,
-        tool_choice: "auto"
       });
+      reply = chatCompletion.choices[0]?.message?.content || "";
     } catch (e) {
-      console.error("Lỗi gọi Groq API lần 1 (Tool Call):", e);
+      console.error("Lỗi gọi Groq API lần 1:", e);
       return NextResponse.json({ reply: "Lỗi kết nối bộ não AI (Lần 1)." }, { status: 500 });
     }
 
-    const responseMessage = chatCompletion.choices[0]?.message;
+    // Nếu AI yêu cầu tra cứu thêm
+    if (reply.includes("[SEARCH_REQUIRED]")) {
+      const query = reply.replace("[SEARCH_REQUIRED]", "").trim() || messages[messages.length - 1].content;
+      console.log("AI is manually searching Web for:", query);
+      
+      const searchResults = await searchGoogleNews(query);
+      
+      // Đút dữ liệu mới tìm được vào và bắt AI rep lại
+      apiMessages.push({ role: 'assistant', content: reply });
+      apiMessages.push({ 
+        role: 'system', 
+        content: `HỆ THỐNG ĐÃ TRẢ VỀ KẾT QUẢ TỪ INTERNET CHO TỪ KHÓA '${query}':\n${searchResults}\n\nHãy sử dụng thông tin này kết hợp với hiểu biết của bạn để trả lời câu hỏi của người dùng ngay bây giờ. KHÔNG DÙNG LẠI TỪ KHÓA SEARCH NỮA.` 
+      });
 
-    // Kích hoạt Tool Calling nếu AI yều cầu
-    if (responseMessage?.tool_calls && responseMessage.tool_calls.length > 0) {
-      apiMessages.push(responseMessage); // Add assistant's tool call request
-
-      for (const toolCall of responseMessage.tool_calls) {
-        if (toolCall.function.name === 'search_news') {
-          let functionArgs;
-          try {
-            functionArgs = JSON.parse(toolCall.function.arguments);
-            console.log("AI is searching Web for:", functionArgs.query);
-          } catch (e) {
-            console.error("Lỗi parse arguments từ AI:", toolCall.function.arguments, e);
-            functionArgs = { query: "tin tức chiến sự trung đông" }; // Fallback query
-          }
-          
-          const searchResults = await searchGoogleNews(functionArgs.query);
-          
-          apiMessages.push({
-            tool_call_id: toolCall.id,
-            role: "tool",
-            name: "search_news",
-            content: searchResults,
-          });
-        }
-      }
-
-      // Gọi lại Groq lần 2 cùng với kết quả tra cứu web
       try {
-        chatCompletion = await groq.chat.completions.create({
+        const chatCompletion2 = await groq.chat.completions.create({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           messages: apiMessages as any,
-          model: 'llama-3.3-70b-versatile',
+          model: 'llama-3.3-70b-versatile', // Dùng 70B siêu thông minh để tổng hợp câu trả lời cuối
           temperature: 0.2,
           max_tokens: 500,
         });
+        reply = chatCompletion2.choices[0]?.message?.content || "";
       } catch (e) {
         console.error("Lỗi gọi Groq API lần 2 (Đọc tin tra cứu web):", e);
         return NextResponse.json({ reply: "Lỗi kết nối bộ não AI (Lần 2 sau khi Web Search)." }, { status: 500 });
       }
     }
-
-    const reply = chatCompletion.choices[0]?.message?.content || "AI không thể đưa ra phản hồi lúc này.";
 
     return NextResponse.json({ reply });
 
