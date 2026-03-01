@@ -295,7 +295,7 @@ export function MiddleEastSection() {
                 {isChatting && (
                   <div className="p-2.5 text-[13px] rounded-lg bg-muted self-start mr-4 text-muted-foreground flex items-center gap-2">
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    Đang giải đáp...
+                    Đang suy nghĩ...
                   </div>
                 )}
               </div>
