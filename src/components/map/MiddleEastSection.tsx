@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl, { Map as MaplibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { RefreshCw, MapPin, ExternalLink, ShieldAlert } from 'lucide-react';
+import { RefreshCw, MapPin, ExternalLink, ShieldAlert, Send } from 'lucide-react';
 
 interface IranEvent {
   id: string;
@@ -25,6 +25,18 @@ export function MiddleEastSection() {
   const [loading, setLoading] = useState(true);
   const [aiSummary, setAiSummary] = useState<string>('');
   const [aiLoading, setAiLoading] = useState(false);
+  
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState<{role: 'user' | 'assistant', content: string}[]>([]);
+  const [isChatting, setIsChatting] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Cuộn xuống khi có tin nhắn chat mới
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [chatMessages, isChatting]);
 
   // Khởi tạo map
   useEffect(() => {
@@ -93,6 +105,40 @@ export function MiddleEastSection() {
       console.error('Error fetching AI summary:', error);
     } finally {
       setAiLoading(false);
+    }
+  };
+
+  const handleSendChat = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim() || isChatting) return;
+
+    const userMsg = chatInput.trim();
+    const newMessages = [...chatMessages, { role: 'user' as const, content: userMsg }];
+    setChatMessages(newMessages);
+    setChatInput('');
+    setIsChatting(true);
+
+    try {
+      const res = await fetch('/api/conflict/iran-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: newMessages,
+          events: events,
+          currentSummary: aiSummary
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setChatMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      } else {
+        setChatMessages(prev => [...prev, { role: 'assistant', content: "Xin lỗi, đã xảy ra lỗi từ server khi phân tích." }]);
+      }
+    } catch (error) {
+      console.error('Lỗi gọi AI Chat:', error);
+      setChatMessages(prev => [...prev, { role: 'assistant', content: "Mạng có vấn đề hoặc bị gián đoạn, vui lòng thử lại." }]);
+    } finally {
+      setIsChatting(false);
     }
   };
 
@@ -203,13 +249,8 @@ export function MiddleEastSection() {
       </div>
 
       <div className="flex flex-col lg:flex-row min-h-[800px] lg:min-h-[650px] lg:h-[650px]">
-        {/* Map Container */}
-        <div className="flex-1 relative border-b lg:border-b-0 lg:border-r min-h-[400px] lg:min-h-0">
-          <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
-        </div>
-
-        {/* News Panel */}
-        <div className="w-full lg:w-[400px] bg-background flex flex-col">
+        {/* AI Column */}
+        <div className="w-full lg:w-[350px] bg-background flex flex-col border-b lg:border-b-0 lg:border-r">
           {/* AI Summary Block */}
           <div className="p-3 border-b bg-muted/10 flex flex-col gap-2">
             <div className="flex items-center justify-between shrink-0">
@@ -227,7 +268,7 @@ export function MiddleEastSection() {
               </button>
             </div>
             
-            <div className="bg-primary/5 rounded-md p-3 border border-primary/20 relative flex flex-col max-h-[160px]">
+            <div className="bg-primary/5 rounded-md p-3 border border-primary/20 relative flex flex-col max-h-[250px] shrink-0">
               <div className="overflow-y-auto custom-scrollbar pr-2">
                 <p className="text-[13px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
                   {aiSummary || "Đang chờ dữ liệu AI..."}
@@ -236,6 +277,62 @@ export function MiddleEastSection() {
             </div>
           </div>
 
+          {/* AI Chat Block */}
+          <div className="p-3 bg-muted/5 flex flex-col gap-2 relative flex-1 min-h-[300px] lg:min-h-0 overflow-hidden">
+            {chatMessages.length > 0 ? (
+              <div 
+                ref={scrollRef}
+                className="flex flex-col gap-2 overflow-y-auto mb-2 custom-scrollbar pr-2 flex-1"
+              >
+                {chatMessages.map((msg, idx) => (
+                  <div key={idx} className={`p-2.5 text-[13px] rounded-lg ${msg.role === 'user' ? 'bg-primary/10 self-end ml-4 text-foreground' : 'bg-muted self-start mr-4 text-muted-foreground'}`}>
+                    <span className="font-semibold text-[10px] uppercase block mb-1 opacity-60">
+                      {msg.role === 'user' ? 'Bạn' : 'AI Trợ lý'}
+                    </span>
+                    <span className="whitespace-pre-wrap leading-relaxed">{msg.content}</span>
+                  </div>
+                ))}
+                {isChatting && (
+                  <div className="p-2.5 text-[13px] rounded-lg bg-muted self-start mr-4 text-muted-foreground flex items-center gap-2">
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    Đang giải đáp...
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground pb-4 opacity-60">
+                <p className="text-[12px] text-center px-4">Chatbot AI chiến sự.</p>
+              </div>
+            )}
+            
+            <form onSubmit={handleSendChat} className="flex gap-2 relative mt-auto shrink-0">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Hỏi câu hỏi riêng về chiến sự..."
+                className="flex-1 text-[13px] px-3 py-2 rounded-md border border-input bg-background focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
+                disabled={isChatting}
+              />
+              <button
+                type="submit"
+                disabled={isChatting || !chatInput.trim()}
+                className="bg-primary text-primary-foreground px-3 rounded-md flex items-center justify-center hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm"
+                title="Gửi câu hỏi"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Map Container */}
+        <div className="flex-1 relative border-b lg:border-b-0 lg:border-r min-h-[400px] lg:min-h-0 order-first lg:order-0">
+          <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
+        </div>
+
+        {/* News Column */}
+        <div className="w-full lg:w-[320px] bg-background flex flex-col">
           <div className="p-3 border-b bg-muted/20">
             <h3 className="text-sm font-medium">Tin tức chiến sự nổi bật ({events.length})</h3>
           </div>

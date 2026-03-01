@@ -39,21 +39,24 @@ export async function POST(request: Request) {
     ).join("\n");
 
     const prompt = `
-Bạn là một chuyên gia phân tích tình hình chiến sự thời sự. Dưới đây là danh sách các tin tức mới nhất về khu vực Trung Đông / Vùng Vịnh:
+Bạn là một chuyên gia phân tích tình hình chiến sự thời sự và kinh tế vĩ mô. Lưu ý rằng xung đột tại Trung Đông không chỉ giới hạn trong các quốc gia khu vực (Iran, Israel, Lebanon, v.v.) mà còn có sự can dự sâu sắc của Mỹ, các nước đồng minh phương Tây và các cường quốc khác. Dưới đây là danh sách các tin tức mới nhất về khu vực Trung Đông / Vùng Vịnh và các bên liên quan:
 ${eventText}
 
-Hãy viết một Báo Cáo Tóm Tắt Tình Hình (khoảng 3-4 câu ngắn gọn, súc tích).
-Yêu cầu:
-- Nêu bật điểm nóng nhất (quốc gia nào, sự kiện gì nổi cộm).
-- Không liệt kê lại từng số thứ tự.
-- Giọng văn: Khách quan, báo chí, chuyên nghiệp.
+Hãy viết một Báo Cáo Tóm Tắt Tình Hình ngắn gọn.
+Yêu cầu BẮT BUỘC TRÌNH BÀY THEO CẤU TRÚC SAU (sử dụng dấu gạch đầu dòng "•"):
+
+• Điểm nóng chiến sự: (Nêu bật các quốc gia/lực lượng liên quan, bao gồm cả Mỹ hoặc các nước khác nếu có, và sự kiện gì nổi cộm nhất đang diễn ra).
+• Xu hướng tiếp theo: (Nhận định ngắn gọn về diễn biến chiến sự và động thái của các cường quốc sắp tới).
+• Tác động giá Vàng: (Dự đoán giá vàng thế giới tăng/giảm/đi ngang và giải thích lý do, gắn với hệ quả kinh tế vĩ mô quốc tế).
+
+Không viết thành đoạn văn dài. Trình bày các ý tách bạch, rõ ràng, dễ đọc. Giọng văn: Khách quan, báo chí, chuyên nghiệp.
     `.trim();
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
       model: 'llama-3.3-70b-versatile', // Mô hình lớn tốt cho phân tích
-      temperature: 0.3,
-      max_tokens: 256,
+      temperature: 0.5,
+      max_tokens: 450,
     });
 
     const summary = chatCompletion.choices[0]?.message?.content || "Không thể tạo tóm tắt vào lúc này.";
