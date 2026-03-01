@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link"
-import { Globe, Menu, Map, ShieldAlert, User } from "lucide-react"
+import Image from "next/image"
+import { Menu, Map, ShieldAlert, User } from "lucide-react"
 import { RegionSearch } from "./RegionSearch"
 import { usePanelStore } from "@/stores/panel-store"
 
@@ -14,7 +15,7 @@ export function Header() {
         <div className="flex flex-1 items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
-              <Globe className="h-5 w-5 text-primary" />
+              <Image src="/icon.png" alt="Logo" width={24} height={24} className="rounded-md" />
               Vietnam Monitor
             </Link>
           </div>

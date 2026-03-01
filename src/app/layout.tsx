@@ -38,6 +38,11 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     }
+  },
+  icons: {
+    icon: '/icon.png?v=2',
+    shortcut: '/icon.png?v=2',
+    apple: '/icon.png?v=2',
   }
 };
 
