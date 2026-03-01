@@ -91,16 +91,22 @@ QUY TẮC PHẨM CHẤT:
       }
     ];
 
-    let chatCompletion = await groq.chat.completions.create({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      messages: apiMessages as any,
-      model: 'llama-3.3-70b-versatile', // Dùng 70B cho Tool Calling chính xác nhất
-      temperature: 0.1,
-      max_tokens: 500,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tools: tools as any,
-      tool_choice: "auto"
-    });
+    let chatCompletion;
+    try {
+      chatCompletion = await groq.chat.completions.create({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        messages: apiMessages as any,
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.1,
+        max_tokens: 500,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tools: tools as any,
+        tool_choice: "auto"
+      });
+    } catch (e) {
+      console.error("Lỗi gọi Groq API lần 1 (Tool Call):", e);
+      return NextResponse.json({ reply: "Lỗi kết nối bộ não AI (Lần 1)." }, { status: 500 });
+    }
 
     const responseMessage = chatCompletion.choices[0]?.message;
 
@@ -131,13 +137,18 @@ QUY TẮC PHẨM CHẤT:
       }
 
       // Gọi lại Groq lần 2 cùng với kết quả tra cứu web
-      chatCompletion = await groq.chat.completions.create({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        messages: apiMessages as any,
-        model: 'llama-3.3-70b-versatile', // Giữ 70B để đọc hiểu kết quả web cho chuẩn xác
-        temperature: 0.2,
-        max_tokens: 500,
-      });
+      try {
+        chatCompletion = await groq.chat.completions.create({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          messages: apiMessages as any,
+          model: 'llama-3.3-70b-versatile',
+          temperature: 0.2,
+          max_tokens: 500,
+        });
+      } catch (e) {
+        console.error("Lỗi gọi Groq API lần 2 (Đọc tin tra cứu web):", e);
+        return NextResponse.json({ reply: "Lỗi kết nối bộ não AI (Lần 2 sau khi Web Search)." }, { status: 500 });
+      }
     }
 
     const reply = chatCompletion.choices[0]?.message?.content || "AI không thể đưa ra phản hồi lúc này.";
