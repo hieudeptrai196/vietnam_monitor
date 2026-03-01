@@ -76,7 +76,7 @@ export default function Home() {
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary shrink-0">
                 <Info size={14} />
               </span>
-              <p>Trỏ chuột hoặc vuốt trên bản đồ để xem chi tiết. Cuộn chuột để phóng to/thu nhỏ.</p>
+              <p>Nhấp vào tỉnh/thành trên Bản đồ Tổng hợp để xem tin tức khu vực đó ở cột trái. Cuộn chuột để phóng to/thu nhỏ.</p>
               <button 
                 onClick={() => setShowMapGuide(false)}
                 className="p-1 hover:bg-muted rounded-full transition-colors opacity-70 hover:opacity-100 shrink-0"
