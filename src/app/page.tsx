@@ -12,12 +12,13 @@ import { GoldPanel } from "@/components/panels/GoldPanel";
 import { StockPanel } from "@/components/panels/StockPanel";
 import { WeatherPanel } from "@/components/panels/WeatherPanel";
 import { YoutubeCarousel } from '@/components/layout/YoutubeCarousel';
-import { Info, X } from 'lucide-react';
+import { Info, X, Loader2 } from 'lucide-react';
 // Import other panels here in the future
 
 export default function Home() {
   const { panels, activeMapView } = usePanelStore();
   const [showMapGuide, setShowMapGuide] = useState(true);
+  const [isIframeLoading, setIsIframeLoading] = useState(true);
 
   // Sort panels by priority
   const activePanels = Object.values(panels)
@@ -99,7 +100,13 @@ export default function Home() {
             {activeMapView === 'default' ? (
               <VietnamMap />
             ) : (
-              <div className="w-full h-full bg-background relative">
+              <div className="w-full h-full bg-background relative flex items-center justify-center">
+                {isIframeLoading && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm z-20">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                    <p className="text-sm text-muted-foreground animate-pulse font-medium">Đang tải dữ liệu radar từ DMC...</p>
+                  </div>
+                )}
                 {/* 
                   Sử dụng API Proxy của mình để chèn luồng render dmc.gov.vn 
                   mà không bị chặn X-Frame-Options 
@@ -109,6 +116,7 @@ export default function Home() {
                   className="w-full h-full border-0 absolute inset-0 z-10"
                   allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                   title="Hệ thống giám sát Thiên tai Việt Nam"
+                  onLoad={() => setIsIframeLoading(false)}
                 />
               </div>
             )}
