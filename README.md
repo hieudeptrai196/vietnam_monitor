@@ -4,8 +4,7 @@
 
 - ⛈️ **Thời tiết & Cảnh báo Thiên tai gốc:** Tích hợp trực tiếp radar mây và hệ thống cảnh báo từ Tổng cục Khí tượng Thuỷ văn (DMC).
 - 📰 **Tin tức Báo chí Mới nhất:** Cập nhật tin thời sự theo từng phút kèm hệ thống phân tích "Từ khoá thịnh hành" bằng AI.
-- 💰 **Tỷ giá & Thị trường:** Giám sát liên tục giá Vàng, Ngoại tệ, Chứng khoán và Crypto Market.
-- 🔴 **VTV24 Live Stream:** Tích hợp tính năng theo dõi Live Stream các bản tin mới nhất.
+- 🔴 **VTV24:** Tích hợp tính năng theo dõi các bản tin mới nhất.
 
 ## Tính Năng Nổi Bật
 
