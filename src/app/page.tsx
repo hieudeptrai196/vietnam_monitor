@@ -27,6 +27,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] relative w-full overflow-hidden bg-background">
+      <h1 className="sr-only">
+        Nền tảng Giám sát Tin tức, Dữ liệu Kinh tế và Khí tượng Thủy văn - Vietnam Monitor
+      </h1>
+      
       {/* Vùng chính: Sidebar + Map */}
       <div className="flex flex-1 min-h-0 relative">
         {/* Cột trái: Left Sidebar */}
