@@ -51,7 +51,7 @@ export function Panel({ id, title, children, headerAction }: PanelProps) {
       <div className="flex flex-col h-full border border-dashed border-border/50 rounded-lg opacity-50 bg-muted/20" />
       
       {/* Fixed Overlay cho Maximize */}
-      <div className="fixed inset-0 z-100 flex flex-col bg-background/95 backdrop-blur-md animate-in fade-in zoom-in-95 duration-200">
+      <div className="fixed inset-0 z-[100] flex flex-col bg-background/95 backdrop-blur-md animate-in fade-in zoom-in-95 duration-200">
         <div className="container mx-auto max-w-7xl h-full p-4 md:p-6 lg:p-8">
           <div className="flex flex-col h-full bg-card border border-border rounded-xl shadow-2xl overflow-hidden">
             {panelContent}

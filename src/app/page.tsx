@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { usePanelStore } from "@/stores/panel-store";
 import { VietnamMap } from "@/components/map/VietnamMap";
 import { NewsPanel } from "@/components/panels/NewsPanel";
@@ -11,10 +12,12 @@ import { GoldPanel } from "@/components/panels/GoldPanel";
 import { StockPanel } from "@/components/panels/StockPanel";
 import { WeatherPanel } from "@/components/panels/WeatherPanel";
 import { YoutubeCarousel } from '@/components/layout/YoutubeCarousel';
+import { Info, X } from 'lucide-react';
 // Import other panels here in the future
 
 export default function Home() {
   const { panels } = usePanelStore();
+  const [showMapGuide, setShowMapGuide] = useState(true);
 
   // Sort panels by priority
   const activePanels = Object.values(panels)
@@ -27,24 +30,65 @@ export default function Home() {
       <div className="flex flex-1 min-h-0 relative">
         {/* Cột trái: Left Sidebar */}
         {activePanels.length > 0 && (
-          <div className="w-full md:w-[400px] lg:w-[420px] shrink-0 border-r bg-muted/10 flex flex-col relative z-10 shadow-xl overflow-y-auto p-4 gap-4">
+          <div className="w-full md:w-[400px] lg:w-[420px] shrink-0 border-r bg-muted/10 flex flex-col shadow-xl overflow-y-auto p-4 gap-4">
+            {/* Dropdown điều hướng tĩnh */}
+            <div className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 p-2 border-b rounded-md shadow-sm -mt-2 mb-2 flex items-center gap-2">
+              <select 
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer hover:bg-muted/50"
+                defaultValue=""
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  const el = document.getElementById(`panel-${e.target.value}`);
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                  e.target.value = ""; // Reset
+                }}
+              >
+                <option value="">-- Chuyển nhanh đến chuyên mục --</option>
+                {activePanels.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Các panels */}
             {activePanels.map(panel => {
-              if (panel.id === 'live-news') return <div key={panel.id} className="h-96 shrink-0"><NewsPanel /></div>;
-              if (panel.id === 'trending') return <div key={panel.id} className="h-72 shrink-0"><TrendingPanel /></div>;
-              if (panel.id === 'ai-insights') return <div key={panel.id} className="h-72 shrink-0"><AIInsightsPanel /></div>;
-              if (panel.id === 'crypto') return <div key={panel.id} className="h-80 shrink-0"><CryptoPanel /></div>;
-              if (panel.id === 'exchange-rate') return <div key={panel.id} className="h-80 shrink-0"><ExchangeRatePanel /></div>;
-              if (panel.id === 'gold') return <div key={panel.id} className="h-64 shrink-0"><GoldPanel /></div>;
-              if (panel.id === 'stocks') return <div key={panel.id} className="h-64 shrink-0"><StockPanel /></div>;
-              if (panel.id === 'weather') return <div key={panel.id} className="h-80 shrink-0"><WeatherPanel /></div>;
+              if (panel.id === 'live-news') return <div id={`panel-${panel.id}`} key={panel.id} className="h-96 shrink-0 scroll-mt-20"><NewsPanel /></div>;
+              if (panel.id === 'trending') return <div id={`panel-${panel.id}`} key={panel.id} className="h-72 shrink-0 scroll-mt-20"><TrendingPanel /></div>;
+              if (panel.id === 'ai-insights') return <div id={`panel-${panel.id}`} key={panel.id} className="h-72 shrink-0 scroll-mt-20"><AIInsightsPanel /></div>;
+              if (panel.id === 'crypto') return <div id={`panel-${panel.id}`} key={panel.id} className="h-80 shrink-0 scroll-mt-20"><CryptoPanel /></div>;
+              if (panel.id === 'exchange-rate') return <div id={`panel-${panel.id}`} key={panel.id} className="h-80 shrink-0 scroll-mt-20"><ExchangeRatePanel /></div>;
+              if (panel.id === 'gold') return <div id={`panel-${panel.id}`} key={panel.id} className="h-64 shrink-0 scroll-mt-20"><GoldPanel /></div>;
+              if (panel.id === 'stocks' || panel.id === 'stock') return <div id={`panel-${panel.id}`} key={panel.id} className="h-64 shrink-0 scroll-mt-20"><StockPanel /></div>;
+              if (panel.id === 'weather') return <div id={`panel-${panel.id}`} key={panel.id} className="h-80 shrink-0 scroll-mt-20"><WeatherPanel /></div>;
               return null;
             })}
           </div>
         )}
 
         {/* Cột phải: Map */}
-        <div className="flex-1 relative bg-muted/30">
-          <VietnamMap />
+        <div className="flex-1 relative bg-muted/30 flex flex-col">
+          {showMapGuide && (
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-background/90 backdrop-blur-md border border-border/50 text-foreground px-4 py-2 rounded-full shadow-lg flex items-center gap-3 text-sm animate-in slide-in-from-top-4 fade-in duration-300">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary shrink-0">
+                <Info size={14} />
+              </span>
+              <p>Trỏ chuột hoặc vuốt trên bản đồ để xem chi tiết. Cuộn chuột để phóng to/thu nhỏ.</p>
+              <button 
+                onClick={() => setShowMapGuide(false)}
+                className="p-1 hover:bg-muted rounded-full transition-colors opacity-70 hover:opacity-100 shrink-0"
+                aria-label="Đóng hướng dẫn"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
+          <div className="flex-1 relative min-h-0">
+            <VietnamMap />
+          </div>
         </div>
       </div>
       

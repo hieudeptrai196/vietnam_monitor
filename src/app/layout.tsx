@@ -6,7 +6,7 @@ import { Header } from "@/components/layout/Header";
 const inter = Inter({ subsets: ["latin", "vietnamese"] });
 
 export const metadata: Metadata = {
-  title: "Vietnam Monitor | Dashboard Tin Tức AI Việt Nam",
+  title: "Vietnam Monitor | Dashboard Tin Tức",
   description: "Giám sát tin tức, sự kiện, thời tiết và dữ liệu kinh tế Việt Nam theo thời gian thực.",
 };
 
