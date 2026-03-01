@@ -15,7 +15,7 @@ export function Header() {
         <div className="flex flex-1 items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
-              <Image src="/icon.png" alt="Logo" width={24} height={24} className="rounded-md" />
+              <Image src="/icon.png" alt="Logo" width={24} height={24} className="rounded-full overflow-hidden" />
               Vietnam Monitor
             </Link>
           </div>
