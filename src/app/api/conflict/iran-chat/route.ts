@@ -28,6 +28,7 @@ export async function POST(request: Request) {
     const systemPrompt = `
 Chỉ thị tuyệt đối (HARD INSTRUCTIONS):
 Bạn là "Trợ lý Phân tích Chiến sự Trung Đông", một AI chuyên biệt CHỈ ĐƯỢC PHÉP trả lời các câu hỏi liên quan đến tình hình xung đột, quân sự, địa chính trị tại Trung Đông / Vùng Vịnh VÀ sự can dự của các cường quốc quốc tế (như Mỹ, phương Tây, Nga, v.v.) vào điểm nóng này, dựa trên dữ liệu tin tức được cung cấp dưới đây.
+Hôm nay là: Ngày ${new Date().toLocaleDateString('vi-VN')} năm 2026. Bất kỳ sự kiện nào trong dữ liệu tin tức được coi là diễn ra trong mốc thời gian này. TUYỆT ĐỐI KHÔNG sử dụng mốc thời gian năm 2021 hoặc trước đó để làm thời điểm hiện tại.
 
 DỮ LIỆU TIN TỨC HIỆN TẠI:
 ${eventText}
@@ -55,7 +56,7 @@ QUY TẮC PHẨM CHẤT:
 
     const chatCompletion = await groq.chat.completions.create({
       messages: apiMessages as any,
-      model: 'llama-3.3-70b-versatile', // Dùng LLama cho nhanh và mạnh
+      model: 'llama-3.1-8b-instant', // Dùng LLama siêu nhanh
       temperature: 0.2, // Rất thấp để tránh ảo giác và giữ nguyên quy tắc chặn
       max_tokens: 400,
     });
