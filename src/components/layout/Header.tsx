@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link"
-import { Globe, Menu, Map, ShieldAlert } from "lucide-react"
+import { Globe, Menu, Map, ShieldAlert, User } from "lucide-react"
 import { RegionSearch } from "./RegionSearch"
 import { usePanelStore } from "@/stores/panel-store"
 
@@ -44,6 +44,19 @@ export function Header() {
             </div>
 
             <RegionSearch />
+
+            {/* Author Link */}
+            <a 
+              href="https://hieunt-vogue.online/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              title="Thông tin Tác giả"
+              className="hidden md:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors border px-3 py-1.5 rounded-md hover:bg-muted"
+            >
+              <User size={16} />
+              <span>Tác giả</span>
+            </a>
+
             <button className="inline-flex h-9 w-9 items-center justify-center rounded-md border bg-transparent hover:bg-muted md:hidden transition-colors">
               <Menu className="h-4 w-4" />
             </button>
