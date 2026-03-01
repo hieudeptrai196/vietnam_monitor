@@ -12,13 +12,12 @@ import { GoldPanel } from "@/components/panels/GoldPanel";
 import { StockPanel } from "@/components/panels/StockPanel";
 import { WeatherPanel } from "@/components/panels/WeatherPanel";
 import { YoutubeCarousel } from '@/components/layout/YoutubeCarousel';
-import { Info, X, Map, ShieldAlert } from 'lucide-react';
+import { Info, X } from 'lucide-react';
 // Import other panels here in the future
 
 export default function Home() {
-  const { panels } = usePanelStore();
+  const { panels, activeMapView } = usePanelStore();
   const [showMapGuide, setShowMapGuide] = useState(true);
-  const [activeMapView, setActiveMapView] = useState<'default' | 'disaster'>('default');
 
   // Sort panels by priority
   const activePanels = Object.values(panels)
@@ -87,29 +86,6 @@ export default function Home() {
               </button>
             </div>
           )}
-
-          {/* Map View Toggle Button */}
-          <div className="absolute top-4 left-4 z-20 flex bg-background/90 backdrop-blur-md border border-border/50 rounded-lg shadow-sm p-1 gap-1">
-            <button
-              onClick={() => setActiveMapView('default')}
-              title="Bản đồ Tổng hợp"
-              className={`p-2 rounded-md flex items-center justify-center transition-colors ${activeMapView === 'default' ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
-            >
-              <Map size={18} />
-            </button>
-            <button
-              onClick={() => setActiveMapView('disaster')}
-              title="Cảnh báo Thiên tai"
-              className={`relative p-2 rounded-md flex items-center justify-center transition-colors ${activeMapView === 'disaster' ? 'bg-red-600 text-white shadow' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
-            >
-              <ShieldAlert size={18} />
-              {activeMapView === 'disaster' ? (
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-              ) : (
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-red-500"></span>
-              )}
-            </button>
-          </div>
 
           <div className="flex-1 relative min-h-0">
             {activeMapView === 'default' ? (

@@ -11,15 +11,18 @@ export type PanelConfig = {
 interface PanelState {
   panels: Record<string, PanelConfig>
   selectedRegion: string | null
+  activeMapView: 'default' | 'disaster'
   togglePanel: (id: string) => void
   setPanelOrder: (ids: string[]) => void
   setSelectedRegion: (region: string | null) => void
+  setActiveMapView: (view: 'default' | 'disaster') => void
 }
 
 export const usePanelStore = create<PanelState>()(
   persist(
     (set) => ({
       selectedRegion: null,
+      activeMapView: 'default',
       panels: {
         'live-news': { id: 'live-news', name: 'Tin nổi bật', enabled: true, priority: 1 },
         'trending': { id: 'trending', name: 'Từ khóa thịnh hành', enabled: true, priority: 2 },
@@ -46,7 +49,7 @@ export const usePanelStore = create<PanelState>()(
           return state;
         }),
       setSelectedRegion: (region) => set({ selectedRegion: region }),
-      // setPanels: (panels) => set({ panels }), // This line was removed as it's not in the desired output structure
+      setActiveMapView: (view) => set({ activeMapView: view }),
     }),
     {
       name: 'vm-panels-v10', // Đổi tên để flush cache cũ ở trình duyệt ra
