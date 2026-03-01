@@ -58,11 +58,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className="dark" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen bg-background antialiased flex flex-col`}>
-        <Header />
-        <main className="flex-1">
-          {children}
-        </main>
+      <body className={`${inter.className} min-h-screen bg-muted/30 antialiased flex flex-col items-center`}>
+        <div className="w-full max-w-[1536px] bg-background flex flex-col flex-1 shadow-2xl relative border-x border-border/50 overflow-x-hidden">
+          <Header />
+          <main className="flex-1 flex flex-col relative">
+            {children}
+          </main>
+          {/* Footer Giải trí */}
+          <footer className="w-full border-t border-border/50 bg-muted/20 py-6 px-4 shrink-0">
+            <div className="max-w-7xl mx-auto flex flex-col items-center justify-center text-center">
+              <p className="text-sm text-muted-foreground">
+                ĐÂY CHỈ LÀ SẢN PHẨM VỚI MỤC ĐÍCH GIẢI TRÍ
+              </p>
+              <p className="text-xs text-muted-foreground/70 mt-1">
+                Dữ liệu được tổng hợp tự động từ các nguồn tin tức công khai trên Internet.
+              </p>
+            </div>
+          </footer>
+        </div>
       </body>
     </html>
   );

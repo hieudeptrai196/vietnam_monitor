@@ -12,6 +12,7 @@ import { GoldPanel } from "@/components/panels/GoldPanel";
 import { StockPanel } from "@/components/panels/StockPanel";
 import { WeatherPanel } from "@/components/panels/WeatherPanel";
 import { YoutubeCarousel } from '@/components/layout/YoutubeCarousel';
+import { MiddleEastSection } from "@/components/map/MiddleEastSection";
 import { Info, X, Loader2 } from 'lucide-react';
 // Import other panels here in the future
 
@@ -26,13 +27,15 @@ export default function Home() {
     .sort((a, b) => a.priority - b.priority);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] relative w-full overflow-hidden bg-background">
-      <h1 className="sr-only">
-        Nền tảng Giám sát Tin tức, Dữ liệu Kinh tế và Khí tượng Thủy văn - Vietnam Monitor
-      </h1>
-      
-      {/* Vùng chính: Sidebar + Map */}
-      <div className="flex flex-1 min-h-0 relative">
+    <div className="flex flex-col relative w-full">
+      {/* Vùng chính 1: Vietnam Monitor */}
+      <div className="flex flex-col h-[calc(100vh-4rem)] shrink-0 relative w-full">
+        <h1 className="sr-only">
+          Nền tảng Giám sát Tin tức, Dữ liệu Kinh tế và Khí tượng Thủy văn - Vietnam Monitor
+        </h1>
+        
+        {/* Vùng chính: Sidebar + Map */}
+        <div className="flex flex-1 min-h-0 relative">
         {/* Cột trái: Left Sidebar */}
         {activePanels.length > 0 && (
           <div className="w-full md:w-[400px] lg:w-[420px] shrink-0 border-r bg-muted/10 flex flex-col shadow-xl overflow-y-auto p-4 gap-4">
@@ -131,6 +134,14 @@ export default function Home() {
       {/* VTV24 Videos Container (100% width) */}
       <div className="h-64 shrink-0 w-full border-t bg-background px-4 py-2 z-20 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
         <YoutubeCarousel />
+      </div>
+      </div> {/* Closes min-h-full shrink-0 div */}
+
+      {/* Khu vực 2: Bản đồ Trung Đông */}
+      <div className="w-full shrink-0 flex flex-col items-center border-t bg-background mt-8 mb-16 px-4 md:px-6">
+        <div className="w-full max-w-[1536px]">
+          <MiddleEastSection />
+        </div>
       </div>
     </div>
   );
