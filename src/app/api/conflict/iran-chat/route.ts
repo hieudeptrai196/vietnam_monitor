@@ -110,8 +110,15 @@ QUY TẮC PHẨM CHẤT:
 
       for (const toolCall of responseMessage.tool_calls) {
         if (toolCall.function.name === 'search_news') {
-          const functionArgs = JSON.parse(toolCall.function.arguments);
-          console.log("AI is searching Web for:", functionArgs.query);
+          let functionArgs;
+          try {
+            functionArgs = JSON.parse(toolCall.function.arguments);
+            console.log("AI is searching Web for:", functionArgs.query);
+          } catch (e) {
+            console.error("Lỗi parse arguments từ AI:", toolCall.function.arguments, e);
+            functionArgs = { query: "tin tức chiến sự trung đông" }; // Fallback query
+          }
+          
           const searchResults = await searchGoogleNews(functionArgs.query);
           
           apiMessages.push({
@@ -127,7 +134,7 @@ QUY TẮC PHẨM CHẤT:
       chatCompletion = await groq.chat.completions.create({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         messages: apiMessages as any,
-        model: 'llama-3.1-8b-instant', // Gọi lại bằng 8B cho nhanh gọn
+        model: 'llama-3.3-70b-versatile', // Giữ 70B để đọc hiểu kết quả web cho chuẩn xác
         temperature: 0.2,
         max_tokens: 500,
       });
@@ -138,7 +145,9 @@ QUY TẮC PHẨM CHẤT:
     return NextResponse.json({ reply });
 
   } catch (error: unknown) {
-    console.error("Lỗi AI Chat:", error);
-    return NextResponse.json({ reply: "Hệ thống AI đang bận kết nối web hoặc quá tải, vui lòng thử lại sau." }, { status: 500 });
+    console.error("---------------------");
+    console.error("Lỗi AI Chat chi tiết:", error);
+    console.error("---------------------");
+    return NextResponse.json({ reply: "Xin lỗi, đã xảy ra lỗi từ server khi phân tích." }, { status: 500 });
   }
 }
