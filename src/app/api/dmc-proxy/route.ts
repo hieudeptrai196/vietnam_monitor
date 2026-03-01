@@ -38,7 +38,19 @@ export async function GET(request: Request) {
         
         // Chèn thẻ <base> vào ngay sau thẻ <head> để trình duyệt tự hiểu 
         // toàn bộ các resources (/css, /js, /images) đều nằm trên https://vndms.dmc.gov.vn
-        htmlContent = htmlContent.replace('<head>', '<head><base href="https://vndms.dmc.gov.vn/">');
+        // Đồng thời, chèn thêm CSS để ẩn Header gốc của họ đi cho gọn bản đồ
+        const hideHeaderCss = `
+          <style>
+            header, .header, #header { display: none !important; width: 0 !important; height: 0 !important; overflow: hidden !important; }
+            .form-search-top { display: none !important; }
+            /* Căn lại vị trí của nội dung dưới header nếu bị đẩy */
+            body.format-top { padding-top: 0 !important; }
+            .app { top: 0 !important; height: 100vh !important; }
+            .btn-view-map { top: 10px !important; }
+          </style>
+        `;
+        
+        htmlContent = htmlContent.replace('<head>', '<head><base href="https://vndms.dmc.gov.vn/">' + hideHeaderCss);
         
         const textEncoder = new TextEncoder();
         body = textEncoder.encode(htmlContent);
@@ -69,10 +81,10 @@ export async function GET(request: Request) {
       headers: proxiedHeaders,
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Lỗi khi tải dữ liệu DMC qua Proxy:", error);
     return NextResponse.json(
-      { error: "Internal Server Error - Proxy Failed", message: error.message },
+      { error: "Internal Server Error - Proxy Failed", message: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }
