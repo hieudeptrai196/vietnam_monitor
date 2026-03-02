@@ -139,7 +139,7 @@ export default function Home() {
 
       {/* Khu vực 2: Bản đồ Trung Đông */}
       <div className="w-full shrink-0 flex flex-col items-center border-t bg-background mt-8 mb-16 px-4 md:px-6">
-        <div className="w-full max-w-[1536px]">
+        <div className="w-full">
           <MiddleEastSection />
         </div>
       </div>

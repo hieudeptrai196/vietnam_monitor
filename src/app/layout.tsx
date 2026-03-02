@@ -59,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className="dark" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen bg-muted/30 antialiased flex flex-col items-center`}>
-        <div className="w-full max-w-[1536px] bg-background flex flex-col flex-1 shadow-2xl relative border-x border-border/50 overflow-x-hidden">
+        <div className="w-full bg-background flex flex-col flex-1 relative overflow-x-hidden">
           <Header />
           <main className="flex-1 flex flex-col relative">
             {children}
