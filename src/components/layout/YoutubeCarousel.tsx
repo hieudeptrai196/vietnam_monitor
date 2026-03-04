@@ -26,6 +26,10 @@ export function YoutubeCarousel() {
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(12);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftPos = useRef(0);
+  const dragged = useRef(false);
 
   useEffect(() => {
     const fetchVideosAndLive = async () => {
@@ -60,6 +64,45 @@ export function YoutubeCarousel() {
           setVisibleCount(prev => Math.min(prev + 4, videos.length));
         }
       }
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isDown.current = true;
+    dragged.current = false;
+    if (scrollRef.current) {
+      startX.current = e.pageX - scrollRef.current.offsetLeft;
+      scrollLeftPos.current = scrollRef.current.scrollLeft;
+      scrollRef.current.classList.remove('snap-x', 'scroll-smooth');
+    }
+  };
+
+  const handleMouseLeave = () => {
+    isDown.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.classList.add('snap-x', 'scroll-smooth');
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDown.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.classList.add('snap-x', 'scroll-smooth');
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDown.current) return;
+    e.preventDefault();
+    if (scrollRef.current) {
+      const x = e.pageX - scrollRef.current.offsetLeft;
+      const walk = (x - startX.current) * 2;
+      
+      if (Math.abs(walk) > 5) {
+        dragged.current = true;
+      }
+      
+      scrollRef.current.scrollLeft = scrollLeftPos.current - walk;
     }
   };
 
@@ -127,11 +170,22 @@ export function YoutubeCarousel() {
           <div 
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex overflow-x-auto pb-4 pt-1 gap-4 snap-x hide-scrollbar scroll-smooth flex-1 items-start"
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            className="flex overflow-x-auto pb-4 pt-1 gap-4 snap-x hide-scrollbar scroll-smooth flex-1 items-start cursor-grab active:cursor-grabbing"
           >
             {videos.slice(0, visibleCount).map((video) => (
               <button
-                onClick={() => setPlayingVideoId(video.id)}
+                onClick={(e) => {
+                  if (dragged.current) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  setPlayingVideoId(video.id);
+                }}
                 key={video.id}
                 className="group relative flex-none w-64 bg-card rounded-xl border border-border/50 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 snap-center hover:-translate-y-1 text-left flex flex-col"
               >
@@ -143,6 +197,7 @@ export function YoutubeCarousel() {
                     alt={video.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
+                    draggable={false}
                   />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                     <div className="w-12 h-12 rounded-full bg-red-600/90 flex items-center justify-center text-white scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all shadow-lg backdrop-blur-sm">
